@@ -25,6 +25,7 @@
                 <li ng-repeat="trigger in job.triggers" ng-class="{ 'triggered' : isDone(trigger) }">
                     <span ng-if="trigger.when">{{ trigger.when | date:'dd/MM/yyyy HH:mm:ss Z' }}</span>
                     <span ng-if="trigger.cron">{{ trigger.cron }}</span>
+                    <span ng-if="trigger.every">{{ trigger.every }}s</span>
                 </li>
             </ul>
         </td>

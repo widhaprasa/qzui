@@ -10,7 +10,6 @@ import restx.annotations.GET;
 import restx.annotations.POST;
 import restx.annotations.RestxResource;
 import restx.factory.Component;
-import restx.security.PermitAll;
 
 import java.util.Collection;
 import java.util.Set;
@@ -38,7 +37,7 @@ public class JobResource {
         {"type":"http", "name":"google-humans", "method":"GET", "url":"http://www.google.com/humans.txt", "triggers": [{"when":"now"}]}
      */
 
-    @PermitAll @POST("/groups/{group}/jobs")
+    @POST("/groups/{group}/jobs")
     public JobDescriptor addJob(String group, JobDescriptor jobDescriptor) {
         try {
             jobDescriptor.setGroup(group);
@@ -64,7 +63,7 @@ public class JobResource {
         }
     }
 
-    @PermitAll @GET("/groups/{group}/jobs")
+    @GET("/groups/{group}/jobs")
     public Set<JobKey> getJobKeysByGroup(String group)  {
         try {
             return scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group));

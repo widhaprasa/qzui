@@ -11,17 +11,13 @@ import java.util.List;
 
 import static org.quartz.JobBuilder.newJob;
 
-/**
- * Date: 19/2/14
- * Time: 06:34
- */
 @Component
 public class ShellJobDefinition extends AbstractJobDefinition {
     private static final Logger logger = LoggerFactory.getLogger(ShellJobDefinition.class);
 
     @Override
     public boolean acceptJobClass(Class<? extends Job> jobClass) {
-        return jobClass.getName() == ShellJob.class.getName();
+        return jobClass.getName().equals(ShellJob.class.getName());
     }
 
     @Override

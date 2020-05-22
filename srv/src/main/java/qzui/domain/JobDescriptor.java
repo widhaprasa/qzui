@@ -10,10 +10,6 @@ import org.quartz.Trigger;
 
 import java.util.*;
 
-/**
- * Date: 18/2/14
- * Time: 21:35
- */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -71,7 +67,7 @@ public abstract class JobDescriptor {
     public Set<Trigger> buildTriggers() {
         Set<Trigger> triggers = new LinkedHashSet<>();
         for (TriggerDescriptor triggerDescriptor : triggerDescriptors) {
-            triggers.add(triggerDescriptor.buildTrigger());
+            triggers.add(triggerDescriptor.buildTrigger(name, group));
         }
 
         return triggers;

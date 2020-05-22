@@ -6,15 +6,19 @@
 
     <groupId>quartz-ui</groupId>
     <artifactId>quartz-ui</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.6</version>
     <packaging>war</packaging>
     <name>quartz-ui</name>
 
     <properties>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.source>1.7</maven.compiler.source>
-        <restx.version>0.31.1</restx.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <restx.version>0.35.1</restx.version>
+        <restx.server.version>0.34.1</restx.server.version>
+        <quartz.version>2.3.0</quartz.version>
         <project.war.resources.directory>../ui/dist</project.war.resources.directory>
+        <final.name>qzui</final.name>
     </properties>
 
     <dependencies>
@@ -56,6 +60,16 @@
         <dependency>
             <groupId>io.restx</groupId>
             <artifactId>restx-server-jetty</artifactId>
+            <version>${restx.server.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.restx</groupId>
+                    <artifactId>restx-servlet</artifactId>
+                </exclusion></exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.restx</groupId>
+            <artifactId>restx-servlet</artifactId>
             <version>${restx.version}</version>
         </dependency>
         <dependency>
@@ -100,12 +114,19 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.49</version>
+        </dependency>
     </dependencies>
     <build>
+        <finalName>${final.name}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.2</version>
                 <configuration>
                     <webResources>
                         <resource>
@@ -113,6 +134,17 @@
                             <directory>${project.war.resources.directory}</directory>
                         </resource>
                     </webResources>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org.apache.commons:commons-collections4</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

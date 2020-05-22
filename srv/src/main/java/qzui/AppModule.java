@@ -1,31 +1,40 @@
 package qzui;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableSet;
-import restx.security.*;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
+import restx.admin.AdminModule;
 import restx.factory.Module;
 import restx.factory.Provides;
-import javax.inject.Named;
+import restx.security.*;
 
-import java.nio.file.Paths;
+import javax.inject.Named;
 
 @Module
 public class AppModule {
+
+    private final ImmutableMap<String, RestxPrincipal> PRINCIPALS = defaultPrincipals();
+
+    private ImmutableMap<String, RestxPrincipal> defaultPrincipals() {
+        ImmutableMap.Builder<String, RestxPrincipal> builder = ImmutableMap.<String, RestxPrincipal>builder();
+        builder.put("admin", AdminModule.RESTX_ADMIN_PRINCIPAL);
+        return builder.build();
+    }
+
     @Provides
     public SignatureKey signatureKey() {
-         return new SignatureKey("5621d6b0-c047-4420-a59d-412a252de015 quartz-ui 5399913187595030480 quartz-ui".getBytes(Charsets.UTF_8));
+        return new SignatureKey("5621d6b0-c047-4420-a59d-412a252de015 quartz-ui 5399913187595030480 quartz-ui".getBytes(Charsets.UTF_8));
     }
 
     @Provides
     @Named("restx.admin.password")
     public String restxAdminPassword() {
-        return "juma";
+        return "qzui";
     }
 
     @Provides
     @Named("app.name")
-    public String appName(){
+    public String appName() {
         return "quartz-ui";
     }
 
@@ -35,36 +44,25 @@ public class AppModule {
     }
 
     @Provides
-    public BasicPrincipalAuthenticator basicPrincipalAuthenticator(
-            SecuritySettings securitySettings, CredentialsStrategy credentialsStrategy,
-            @Named("restx.admin.passwordHash") String defaultAdminPasswordHash, ObjectMapper mapper) {
-        return new StdBasicPrincipalAuthenticator(new StdUserService<>(
-                // use file based users repository.
-                // Developer's note: prefer another storage mechanism for your users if you need real user management
-                // and better perf
-                new FileBasedUserRepository<>(
-                        StdUser.class, // this is the class for the User objects, that you can get in your app code
-                        // with RestxSession.current().getPrincipal().get()
-                        // it can be a custom user class, it just need to be json deserializable
-                        mapper,
+    public BasicPrincipalAuthenticator basicPrincipalAuthenticator(SecuritySettings securitySettings,
+                                                                   @Named("restx.admin.passwordHash") final String adminPasswordHash) {
 
-                        // this is the default restx admin, useful to access the restx admin console.
-                        // if one user with restx-admin role is defined in the repository, this default user won't be
-                        // available anymore
-                        new StdUser("admin", ImmutableSet.<String>of("*")),
+        return new StdBasicPrincipalAuthenticator(new UserService<RestxPrincipal>() {
 
-                        // the path where users are stored
-                        Paths.get("data/users.json"),
+            @Override
+            public Optional<RestxPrincipal> findUserByName(String name) {
+                return Optional.fromNullable(PRINCIPALS.get(name));
+            }
 
-                        // the path where credentials are stored. isolating both is a good practice in terms of security
-                        // it is strongly recommended to follow this approach even if you use your own repository
-                        Paths.get("data/credentials.json"),
-
-                        // tells that we want to reload the files dynamically if they are touched.
-                        // this has a performance impact, if you know your users / credentials never change without a
-                        // restart you can disable this to get better perfs
-                        true),
-                credentialsStrategy, defaultAdminPasswordHash),
-                securitySettings);
+            @Override
+            public Optional<RestxPrincipal> findAndCheckCredentials(String name, String passwordHash) {
+                RestxPrincipal principal = PRINCIPALS.get(name);
+                if (principal == null || !adminPasswordHash.equals(passwordHash)) {
+                    return Optional.absent();
+                } else {
+                    return Optional.of(principal);
+                }
+            }
+        }, securitySettings);
     }
 }

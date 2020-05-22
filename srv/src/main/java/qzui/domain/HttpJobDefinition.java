@@ -5,23 +5,20 @@ import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import restx.factory.Component;
+import restx.http.HttpStatus;
 
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.quartz.JobBuilder.newJob;
 
-/**
- * Date: 19/2/14
- * Time: 06:34
- */
 @Component
 public class HttpJobDefinition extends AbstractJobDefinition {
     private static final Logger logger = LoggerFactory.getLogger(HttpJobDefinition.class);
 
     @Override
     public boolean acceptJobClass(Class<? extends Job> jobClass) {
-        return jobClass.getName() == HttpJob.class.getName();
+        return jobClass.getName().equals(HttpJob.class.getName());
     }
 
     @Override
@@ -125,6 +122,7 @@ public class HttpJobDefinition extends AbstractJobDefinition {
     }
 
     public static class HttpJob implements Job {
+
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
 
@@ -141,11 +139,19 @@ public class HttpJobDefinition extends AbstractJobDefinition {
             setContentType(jobDataMap, request);
             setCrendentials(jobDataMap, request);
 
-            request.send(body);
-            int code = request.code();
-            String responseBody = request.body();
+            try {
+                request.send(body);
+                int code = request.code();
+                if (code == HttpStatus.OK.getCode()) {
+                    logger.info("[SUCCESS] {} {} {} => {}", method, url, body, code);
+                } else {
+                    logger.error("[FAILED] {} {} => {}", method, url, code);
+                }
 
-            logger.info("{} {} => {}\n{}", method, url, code, responseBody);
+            } catch (HttpRequest.HttpRequestException e) {
+                //e.printStackTrace();
+                logger.error("[FAILED] {} {} => E", method, url);
+            }
         }
 
         private void setCrendentials(JobDataMap jobDataMap, HttpRequest request) {

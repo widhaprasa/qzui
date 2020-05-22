@@ -7,47 +7,65 @@ import java.util.UUID;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-/**
- * Date: 18/2/14
- * Time: 21:55
- */
 public class TriggerDescriptor {
+
     public static TriggerDescriptor buildDescriptor(Trigger trigger) {
+
+        int every = 0;
+        if (trigger.getJobDataMap().containsKey("every")) {
+            Object value = trigger.getJobDataMap().get("every");
+            if (value instanceof Number) {
+                every = ((Number) value).intValue();
+            }
+        }
+
         return new TriggerDescriptor()
                 .setGroup(trigger.getKey().getGroup())
                 .setName(trigger.getKey().getName())
                 .setCron(trigger.getJobDataMap().getString("cron"))
-                .setWhen(trigger.getJobDataMap().getString("when"));
+                .setWhen(trigger.getJobDataMap().getString("when"))
+                .setEvery(every);
     }
 
     private String name;
     private String group;
-
     private String when;
     private String cron;
+    private int every;
 
-    public Trigger buildTrigger() {
+    public Trigger buildTrigger(String name, String group) {
         if (!isNullOrEmpty(cron)) {
             return newTrigger()
-                    .withIdentity(buildName(), group)
+                    .withIdentity(name, group)
                     .withSchedule(cronSchedule(cron))
                     .usingJobData("cron", cron)
                     .build();
+
         } else if (!isNullOrEmpty(when)) {
             if ("now".equalsIgnoreCase(when)) {
                 return newTrigger()
-                        .withIdentity(buildName(), group)
+                        .withIdentity(name, group)
                         .usingJobData("when", when)
                         .build();
             }
 
             DateTime dateTime = DateTime.parse(when);
             return newTrigger()
-                    .withIdentity(buildName(), group)
+                    .withIdentity(name, group)
                     .startAt(dateTime.toDate())
                     .usingJobData("when", when)
+                    .build();
+
+        } else if (every > 0) {
+            return newTrigger()
+                    .withIdentity(name, group)
+                    .withSchedule(
+                            simpleSchedule().withIntervalInSeconds(every).repeatForever()
+                    )
+                    .usingJobData("every", every)
                     .build();
         }
         throw new IllegalStateException("unsupported trigger descriptor " + this);
@@ -73,6 +91,10 @@ public class TriggerDescriptor {
         return cron;
     }
 
+    public int getEvery() {
+        return every;
+    }
+
     public TriggerDescriptor setName(final String name) {
         this.name = name;
         return this;
@@ -93,6 +115,11 @@ public class TriggerDescriptor {
         return this;
     }
 
+    public TriggerDescriptor setEvery(final int every) {
+        this.every = every;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "TriggerDescriptor{" +
@@ -100,6 +127,7 @@ public class TriggerDescriptor {
                 ", group='" + group + '\'' +
                 ", when='" + when + '\'' +
                 ", cron='" + cron + '\'' +
+                ", every='" + every + '\'' +
                 '}';
     }
 }

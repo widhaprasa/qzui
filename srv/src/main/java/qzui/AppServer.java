@@ -1,8 +1,8 @@
 package qzui;
 
 import com.google.common.base.Optional;
-import restx.server.WebServer;
 import restx.server.JettyWebServer;
+import restx.server.WebServer;
 
 /**
  * This class can be used to run the app.
@@ -16,7 +16,7 @@ public class AppServer {
     public static final String WEB_APP_LOCATION = "../ui/app";
 
     public static void main(String[] args) throws Exception {
-        int port = Integer.valueOf(Optional.fromNullable(System.getenv("PORT")).or("8080"));
+        int port = Integer.parseInt(Optional.fromNullable(System.getenv("PORT")).or("8080"));
         WebServer server = new JettyWebServer(WEB_INF_LOCATION, WEB_APP_LOCATION, port, "0.0.0.0");
 
         /*
@@ -26,6 +26,29 @@ public class AppServer {
          */
         System.setProperty("restx.mode", System.getProperty("restx.mode", "dev"));
         System.setProperty("restx.app.package", "qzui");
+
+        // JobStore properties
+        boolean jobStore = false;
+        if (jobStore) {
+            String jobStoreMysqlHost ="localhost";
+            int jobStoreMysqlPort = 3306;
+            String jobStoreMysqlDatabase = "quartz";
+            String jobStoreMysqlUsername = "quartz";
+            String jobStoreMysqlPassword = "quartz";
+
+            System.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
+            System.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+            System.setProperty("org.quartz.jobStore.dataSource", "qzui");
+            System.setProperty("org.quartz.dataSource.qzui.driver", "com.mysql.jdbc.Driver");
+            System.setProperty("org.quartz.dataSource.qzui.URL", "jdbc:mysql://" + jobStoreMysqlHost + ':' +
+                    jobStoreMysqlPort + '/' + jobStoreMysqlDatabase);
+            if (!jobStoreMysqlUsername.isEmpty()) {
+                System.setProperty("org.quartz.dataSource.qzui.user", jobStoreMysqlUsername);
+                if (!jobStoreMysqlPassword.isEmpty()) {
+                    System.setProperty("org.quartz.dataSource.qzui.password", jobStoreMysqlPassword);
+                }
+            }
+        }
 
         server.startAndAwait();
     }
