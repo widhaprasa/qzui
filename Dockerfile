@@ -14,8 +14,8 @@ RUN ["rm", "-fr", "/usr/local/tomcat/webapps/ROOT"]
 ADD srv/target/qzui.war /usr/local/tomcat/webapps/ROOT.war
 
 # Copy entry point & make it executable
-COPY docker/docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
+COPY docker/docker-entrypoint.sh .
+RUN chmod +x ./docker-entrypoint.sh
 
 # Start
 ENTRYPOINT ["./docker-entrypoint.sh"]
