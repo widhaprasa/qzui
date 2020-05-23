@@ -23,9 +23,9 @@ for key in $(compgen -e); do
   prop=${prop//_/.} # Replace underscore with dot
 
   # Ignore org.quartz.* properties
-  if [[ $prop =~ org.quartz.* ]]; then
+  if ! [[ $prop == org.quartz.* ]]; then
     args+=("-D${prop}=${val}")
-  fi;
+  fi
 done
 
 # Pass properties to CATALINA_OPTS
@@ -36,4 +36,3 @@ fi
 echo "CATALINA_OPTS=${CATALINA_OPTS}"
 echo "catalina.sh run"
 catalina.sh run
-0

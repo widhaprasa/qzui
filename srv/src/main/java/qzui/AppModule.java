@@ -17,7 +17,7 @@ public class AppModule {
 
     private ImmutableMap<String, RestxPrincipal> defaultPrincipals() {
         ImmutableMap.Builder<String, RestxPrincipal> builder = ImmutableMap.<String, RestxPrincipal>builder();
-        builder.put("admin", AdminModule.RESTX_ADMIN_PRINCIPAL);
+        builder.put(System.getProperty("qzui.admin.username", "admin"), AdminModule.RESTX_ADMIN_PRINCIPAL);
         return builder.build();
     }
 
@@ -29,7 +29,7 @@ public class AppModule {
     @Provides
     @Named("restx.admin.password")
     public String restxAdminPassword() {
-        return "qzui";
+        return System.getProperty("qzui.admin.password", "qzui");
     }
 
     @Provides
