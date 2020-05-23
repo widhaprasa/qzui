@@ -19,11 +19,16 @@ for key in $(compgen -e); do
   if [ -z "${val}" ]; then
     continue # Exclude empty value
   fi
+
   prop=${key,,} # Convert to lowercase
   prop=${prop//_/.} # Replace underscore with dot
 
-  # Ignore org.quartz.* properties
-  if ! [[ $prop == org.quartz.* ]]; then
+  if [[ $prop == org.quartz.* ]]; then
+    continue # Ignore org.quartz.* properties
+  elif [[ $prop == qzui.jobstore.* ]]; then
+    prop=${prop/qzui.jobstore/qzui.jobStore} # Replace qzui.jobstore
+    args+=("-D${prop}=${val}")
+  else
     args+=("-D${prop}=${val}")
   fi
 done
