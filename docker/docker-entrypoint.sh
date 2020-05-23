@@ -29,7 +29,7 @@ for key in $(compgen -e); do
 done
 
 # Pass properties to CATALINA_OPTS
-if [ a -ne 0 ]; then
+if [ ${#args[@]} -ne 0 ]; then
   export CATALINA_OPTS="${args[@]} ${CATALINA_OPTS}"
 fi
 
