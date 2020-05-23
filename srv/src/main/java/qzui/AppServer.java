@@ -24,7 +24,7 @@ public class AppServer {
          * be careful with that setting, if you use this class to launch your server in production, make sure to launch
          * it with -Drestx.mode=prod or change the default here
          */
-        System.setProperty("restx.mode", System.getProperty("restx.mode", "prod"));
+        System.setProperty("restx.mode", System.getProperty("restx.mode", "dev"));
         System.setProperty("restx.app.package", "qzui");
 
         // JobStore properties
