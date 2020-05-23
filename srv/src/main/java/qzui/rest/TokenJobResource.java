@@ -30,16 +30,45 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @POST("/qt/groups/{group}/jobs")
-    public JobDescriptor addJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
-                                String group, JobDescriptor jobDescriptor) {
+    @GET("/qt/jobs")
+    public Set<JobKey> getAllJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token) {
 
         if (!token.isPresent() || !token.get().equals(this.token)) {
             throw new WebException(HttpStatus.UNAUTHORIZED);
         }
 
         try {
-            jobDescriptor.setGroup(group);
+            return scheduler.getJobKeys(GroupMatcher.anyJobGroup());
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PermitAll
+    @DELETE("/qt/jobs")
+    public void deleteAllJobs(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token) {
+
+        if (!token.isPresent() || !token.get().equals(this.token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            scheduler.clear();
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PermitAll
+    @POST("/qt/job")
+    public JobDescriptor addJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
+                                JobDescriptor jobDescriptor) {
+
+        if (!token.isPresent() || !token.get().equals(this.token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
             Set<Trigger> triggers = jobDescriptor.buildTriggers();
             JobDetail jobDetail = jobDescriptor.buildJobDetail();
             if (triggers.isEmpty()) {
@@ -48,13 +77,14 @@ public class TokenJobResource {
                 scheduler.scheduleJob(jobDetail, triggers, false);
             }
             return jobDescriptor;
+
         } catch (SchedulerException e) {
             throw new RuntimeException(e);
         }
     }
 
     @PermitAll
-    @GET("/qt/groups/{group}/jobs")
+    @GET("/qt/group/{group}/jobs")
     public Set<JobKey> getJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
                                   String group) {
 
@@ -70,7 +100,7 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @GET("/qt/groups/{group}/jobs/{name}")
+    @GET("/qt/group/{group}/job/{name}")
     public Optional<JobDescriptor> getJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
                                           String group, String name) {
 
@@ -99,7 +129,7 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @DELETE("/qt/groups/{group}/jobs/{name}")
+    @DELETE("/qt/group/{group}/job/{name}")
     public void deleteJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
                           String group, String name) {
 
@@ -115,9 +145,9 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @DELETE("/qt/groups/{group}")
-    public void deleteJobs(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
-                           String group) {
+    @DELETE("/qt/group/{group}/jobs")
+    public void deleteJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
+                              String group) {
 
         if (!token.isPresent() || !token.get().equals(this.token)) {
             throw new WebException(HttpStatus.UNAUTHORIZED);
