@@ -22,6 +22,8 @@ angular.module('myApp.controllers', []).
                         job.triggers = j.triggers;
                     });
                 });
+            }).error(function(jobs) {
+               window.location.replace('api/@/ui/login.html');
             });
         }
         loadJobs();

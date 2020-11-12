@@ -12,7 +12,7 @@ public class QzuiMainRouterServlet extends RestxMainRouterServlet {
 
         // JobStore properties
         String jobStoreEnable = System.getProperty("qzui.jobStore.enabled", "false");
-        if (jobStoreEnable.equals("true")) {
+        if ("true".equals(jobStoreEnable)) {
             String jobStoreMysqlHost = System.getProperty("qzui.jobStore.mysql.host", "localhost");
             int jobStoreMysqlPort = 3306;
             try {
