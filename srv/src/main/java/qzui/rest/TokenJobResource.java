@@ -30,7 +30,7 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @GET("/qt/jobs")
+    @GET("/token/jobs")
     public Set<JobKey> getAllJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token) {
 
         if (!token.isPresent() || !token.get().equals(this.token)) {
@@ -45,7 +45,7 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @DELETE("/qt/jobs")
+    @DELETE("/token/jobs")
     public void deleteAllJobs(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token) {
 
         if (!token.isPresent() || !token.get().equals(this.token)) {
@@ -60,7 +60,7 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @POST("/qt/job")
+    @POST("/token/job")
     public JobDescriptor addJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
                                 JobDescriptor jobDescriptor) {
 
@@ -84,7 +84,7 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @GET("/qt/group/{group}/jobs")
+    @GET("/token/group/{group}/jobs")
     public Set<JobKey> getJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
                                   String group) {
 
@@ -100,7 +100,33 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @GET("/qt/group/{group}/job/{name}")
+    @DELETE("/token/group/{group}/jobs")
+    public void deleteJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
+                              String group) {
+
+        if (!token.isPresent() || !token.get().equals(this.token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Set<JobKey> jobKeys;
+        try {
+            jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group));
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+            jobKeys = new HashSet<>();
+        }
+
+        for (JobKey jobKey : jobKeys) {
+            try {
+                scheduler.deleteJob(jobKey);
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @PermitAll
+    @GET("/token/group/{group}/job/{name}")
     public Optional<JobDescriptor> getJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
                                           String group, String name) {
 
@@ -129,7 +155,7 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @DELETE("/qt/group/{group}/job/{name}")
+    @DELETE("/token/group/{group}/job/{name}")
     public void deleteJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
                           String group, String name) {
 
@@ -145,28 +171,47 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @DELETE("/qt/group/{group}/jobs")
-    public void deleteJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
-                              String group) {
+    @GET("/token/job/{name}")
+    public Optional<JobDescriptor> getDefaultJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER)
+                                                         Optional<String> token, String name) {
 
         if (!token.isPresent() || !token.get().equals(this.token)) {
             throw new WebException(HttpStatus.UNAUTHORIZED);
         }
 
-        Set<JobKey> jobKeys;
         try {
-            jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group));
+            JobDetail jobDetail = scheduler.getJobDetail(new JobKey(name));
+            if (jobDetail == null) {
+                return Optional.absent();
+            }
+
+            for (JobDefinition definition : definitions) {
+                if (definition.acceptJobClass(jobDetail.getJobClass())) {
+                    return Optional.of(definition.buildDescriptor(
+                            jobDetail, scheduler.getTriggersOfJob(jobDetail.getKey())));
+                }
+            }
+
+            throw new IllegalStateException("can't find job definition for " + jobDetail
+                    + " - available job definitions: " + definitions);
         } catch (SchedulerException e) {
-            e.printStackTrace();
-            jobKeys = new HashSet<>();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PermitAll
+    @DELETE("/token/job/{name}")
+    public void deleteDefaultJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
+                                 String name) {
+
+        if (!token.isPresent() || !token.get().equals(this.token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
         }
 
-        for (JobKey jobKey : jobKeys) {
-            try {
-                scheduler.deleteJob(jobKey);
-            } catch (SchedulerException e) {
-                e.printStackTrace();
-            }
+        try {
+            scheduler.deleteJob(new JobKey(name));
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
         }
     }
 }

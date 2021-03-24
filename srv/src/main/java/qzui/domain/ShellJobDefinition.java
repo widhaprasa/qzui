@@ -58,7 +58,6 @@ public class ShellJobDefinition extends AbstractJobDefinition {
                     "script='" + script + '\'' +
                     '}';
         }
-
     }
 
     public static class ShellJob implements Job {

@@ -1,4 +1,4 @@
-qzui
+Qzui
 ====
 
 Qzui, a basic REST and Web front end over [Quartz Scheduler](http://quartz-scheduler.org/).
@@ -7,26 +7,32 @@ Qzui, a basic REST and Web front end over [Quartz Scheduler](http://quartz-sched
 
 ### Simple UI
 
-* simple UI to get the list of jobs and their triggers
-* delete (cancel) a job
+* Simple UI to get the list of jobs and their triggers
+* Filter by group
+* Delete (cancel) a job
 
 ### Jobs type
 
-* Log job: log something, mainly used for testing
-* HTTP jobs: make HTTP request
+* Log job: Log something, mainly used for testing
+* Shell job: Execute shell script
+* HTTP job: Make HTTP request
 
 ### Timers
 
-* 'now'
-* at specified time
-* using cron syntax
+* Right 'now'
+* At specified time
+* Using cron syntax
+* Simple schedule (every)
 
 ### REST API
 
-* create new jobs
-* get list of jobs
-* get job detail
-* delete (cancel) a job
+* Create a new job
+* Get job detail
+* Get list of jobs by group
+* Get list of all jobs
+* Delete a job
+* Delete jobs by group
+* Delete all jobs
 
 ### Easy hacking
 
@@ -43,7 +49,7 @@ Java                            10            110             63            480
 ## Hacking
 
 
-### get, build and run
+### Get, Build and Run
 
 ```
 git clone https://github.com/xhanin/qzui.git
@@ -57,7 +63,7 @@ You can also run the server using [RESTX](http://restx.io/) with `restx app run`
 
 To launch it from your IDE use the `AppServer` class.
 
-### add new job types
+### Add new job types
 
 Adding a new job type is simple, take example from existing ones:
 
@@ -65,7 +71,7 @@ Adding a new job type is simple, take example from existing ones:
 
 And do not forget to add the type json value in [JobDescriptor](https://github.com/xhanin/qzui/blob/master/srv/src/main/java/qzui/JobDescriptor.java)
 
-### add new triggers
+### Add new triggers
 
 Hack the [TriggerDescriptor](https://github.com/xhanin/qzui/blob/master/srv/src/main/java/qzui/TriggerDescriptor.java) class.
 
@@ -132,6 +138,20 @@ Note that jobs MUST have unique names.
 }
 ```
 
+#### HTTP Job, scheduled using every (in secs).
+
+```
+{
+  "type":"http",
+  "name":"google-humans",
+  "method":"GET",
+  "url":"http://www.google.com/humans.txt",
+  "triggers": [
+        {"every":60}
+  ]
+}
+```
+
 ## Why?
 
 Because I don't like embedding a job scheduler inside my web application server, mainly because scaling a web application server should be done easily by adding new nodes, while a scheduler cluster is much harder to setup and most of the time a single scheduler server can handle tremendous number of jobs, especially if jobs are performed asynchronously.
@@ -149,6 +169,3 @@ Quartz is production ready, and it's the component doing the heavy lifting.
 ![Qzui UI](https://i.cloudup.com/rA5oWU9hqd-2000x2000.png)
 
 ![Qzui post jobs](https://i.cloudup.com/ZCkwMOtVpr-3000x3000.png)
-
-
-

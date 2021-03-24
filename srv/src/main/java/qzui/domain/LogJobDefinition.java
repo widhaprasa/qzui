@@ -32,7 +32,6 @@ public class LogJobDefinition extends AbstractJobDefinition {
                     .usingJobData(new JobDataMap(getData()))
                     .build();
         }
-
     }
 
     public static class LogJob implements Job {
