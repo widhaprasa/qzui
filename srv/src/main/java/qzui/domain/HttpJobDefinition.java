@@ -36,7 +36,7 @@ public class HttpJobDefinition extends AbstractJobDefinition {
                 .setBody((String) jobDescriptor.getData().remove("body"))
                 .setContentType((String) jobDescriptor.getData().remove("contentType"))
                 .setLogin((String) jobDescriptor.getData().remove("login"))
-                .setPwdHash((String) jobDescriptor.getData().remove("pwdHash"))
+                .setPwdHash((String) jobDescriptor.getData().remove("pwd"))
                 .setHeaders((String) jobDescriptor.getData().remove("headers"))
                 .setReadTimeout((int) jobDescriptor.getData().remove("readTimeout"))
                 .setConnectTimeout((int) jobDescriptor.getData().remove("connectTimeout"));
