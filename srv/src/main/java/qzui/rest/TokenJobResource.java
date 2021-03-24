@@ -11,6 +11,7 @@ import restx.factory.Component;
 import restx.http.HttpStatus;
 import restx.security.PermitAll;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,36 +28,6 @@ public class TokenJobResource {
         this.scheduler = scheduler;
         this.definitions = definitions;
         this.token = System.getProperty("qzui.token", "qzui");
-    }
-
-    @PermitAll
-    @GET("/token/jobs")
-    public Set<JobKey> getAllJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token) {
-
-        if (!token.isPresent() || !token.get().equals(this.token)) {
-            throw new WebException(HttpStatus.UNAUTHORIZED);
-        }
-
-        try {
-            return scheduler.getJobKeys(GroupMatcher.anyJobGroup());
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @PermitAll
-    @DELETE("/token/jobs")
-    public void deleteAllJobs(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token) {
-
-        if (!token.isPresent() || !token.get().equals(this.token)) {
-            throw new WebException(HttpStatus.UNAUTHORIZED);
-        }
-
-        try {
-            scheduler.clear();
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @PermitAll
@@ -80,48 +51,6 @@ public class TokenJobResource {
 
         } catch (SchedulerException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    @PermitAll
-    @GET("/token/group/{group}/jobs")
-    public Set<JobKey> getJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
-                                  String group) {
-
-        if (!token.isPresent() || !token.get().equals(this.token)) {
-            throw new WebException(HttpStatus.UNAUTHORIZED);
-        }
-
-        try {
-            return scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group));
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @PermitAll
-    @DELETE("/token/group/{group}/jobs")
-    public void deleteJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
-                              String group) {
-
-        if (!token.isPresent() || !token.get().equals(this.token)) {
-            throw new WebException(HttpStatus.UNAUTHORIZED);
-        }
-
-        Set<JobKey> jobKeys;
-        try {
-            jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group));
-        } catch (SchedulerException e) {
-            e.printStackTrace();
-            jobKeys = new HashSet<>();
-        }
-
-        for (JobKey jobKey : jobKeys) {
-            try {
-                scheduler.deleteJob(jobKey);
-            } catch (SchedulerException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -155,6 +84,37 @@ public class TokenJobResource {
     }
 
     @PermitAll
+    @GET("/token/group/{group}/jobs")
+    public Set<JobKey> getJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
+                                  String group) {
+
+        if (!token.isPresent() || !token.get().equals(this.token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            return scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group));
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PermitAll
+    @GET("/token/jobs")
+    public Set<JobKey> getAllJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token) {
+
+        if (!token.isPresent() || !token.get().equals(this.token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            return scheduler.getJobKeys(GroupMatcher.anyJobGroup());
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PermitAll
     @DELETE("/token/group/{group}/job/{name}")
     public void deleteJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
                           String group, String name) {
@@ -165,6 +125,45 @@ public class TokenJobResource {
 
         try {
             scheduler.deleteJob(new JobKey(name, group));
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PermitAll
+    @DELETE("/token/group/{group}/jobs")
+    public void deleteJobKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
+                              String group) {
+
+        if (!token.isPresent() || !token.get().equals(this.token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Set<JobKey> jobKeys;
+        try {
+            jobKeys = scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group));
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+            jobKeys = new HashSet<>();
+        }
+
+        try {
+            scheduler.deleteJobs(new ArrayList<JobKey>(jobKeys));
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @PermitAll
+    @DELETE("/token/jobs")
+    public void deleteAllJobs(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token) {
+
+        if (!token.isPresent() || !token.get().equals(this.token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            scheduler.clear();
         } catch (SchedulerException e) {
             throw new RuntimeException(e);
         }
