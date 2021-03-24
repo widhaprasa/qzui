@@ -169,49 +169,4 @@ public class TokenJobResource {
             throw new RuntimeException(e);
         }
     }
-
-    @PermitAll
-    @GET("/token/job/{name}")
-    public Optional<JobDescriptor> getDefaultJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER)
-                                                         Optional<String> token, String name) {
-
-        if (!token.isPresent() || !token.get().equals(this.token)) {
-            throw new WebException(HttpStatus.UNAUTHORIZED);
-        }
-
-        try {
-            JobDetail jobDetail = scheduler.getJobDetail(new JobKey(name));
-            if (jobDetail == null) {
-                return Optional.absent();
-            }
-
-            for (JobDefinition definition : definitions) {
-                if (definition.acceptJobClass(jobDetail.getJobClass())) {
-                    return Optional.of(definition.buildDescriptor(
-                            jobDetail, scheduler.getTriggersOfJob(jobDetail.getKey())));
-                }
-            }
-
-            throw new IllegalStateException("can't find job definition for " + jobDetail
-                    + " - available job definitions: " + definitions);
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @PermitAll
-    @DELETE("/token/job/{name}")
-    public void deleteDefaultJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) Optional<String> token,
-                                 String name) {
-
-        if (!token.isPresent() || !token.get().equals(this.token)) {
-            throw new WebException(HttpStatus.UNAUTHORIZED);
-        }
-
-        try {
-            scheduler.deleteJob(new JobKey(name));
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
