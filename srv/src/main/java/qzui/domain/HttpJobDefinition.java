@@ -33,7 +33,13 @@ public class HttpJobDefinition extends AbstractJobDefinition {
         return jobDescriptor
                 .setUrl((String) jobDescriptor.getData().remove("url"))
                 .setMethod((String) jobDescriptor.getData().remove("method"))
-                .setBody((String) jobDescriptor.getData().remove("body"));
+                .setBody((String) jobDescriptor.getData().remove("body"))
+                .setContentType((String) jobDescriptor.getData().remove("contentType"))
+                .setLogin((String) jobDescriptor.getData().remove("login"))
+                .setPwdHash((String) jobDescriptor.getData().remove("pwdHash"))
+                .setHeaders((String) jobDescriptor.getData().remove("headers"))
+                .setReadTimeout((int) jobDescriptor.getData().remove("readTimeout"))
+                .setConnectTimeout((int) jobDescriptor.getData().remove("connectTimeout"));
     }
 
     public static class HttpJobDescriptor extends JobDescriptor {
