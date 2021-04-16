@@ -11,10 +11,7 @@ import restx.factory.Component;
 import restx.http.HttpStatus;
 import restx.security.PermitAll;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @RestxResource
 @Component
@@ -28,6 +25,21 @@ public class TokenJobResource {
         this.scheduler = scheduler;
         this.definitions = definitions;
         this.token = System.getProperty("qzui.token", "qzui");
+    }
+
+    @PermitAll
+    @GET("/token/groups")
+    public List<String> getAllGroupKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) String token) {
+
+        if (!this.token.equals(token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            return scheduler.getJobGroupNames();
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @PermitAll
