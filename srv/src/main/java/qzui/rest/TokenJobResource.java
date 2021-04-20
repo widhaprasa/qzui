@@ -28,21 +28,6 @@ public class TokenJobResource {
     }
 
     @PermitAll
-    @GET("/token/groups")
-    public List<String> getAllGroupKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) String token) {
-
-        if (!this.token.equals(token)) {
-            throw new WebException(HttpStatus.UNAUTHORIZED);
-        }
-
-        try {
-            return scheduler.getJobGroupNames();
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @PermitAll
     @POST("/token/job")
     public JobDescriptor addJob(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) String token,
                                 JobDescriptor jobDescriptor) {
@@ -61,6 +46,21 @@ public class TokenJobResource {
             }
             return jobDescriptor;
 
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PermitAll
+    @GET("/token/groups")
+    public List<String> getAllGroupKeys(@Param(value = "Qzui-Token", kind = Param.Kind.HEADER) String token) {
+
+        if (!this.token.equals(token)) {
+            throw new WebException(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            return scheduler.getJobGroupNames();
         } catch (SchedulerException e) {
             throw new RuntimeException(e);
         }
