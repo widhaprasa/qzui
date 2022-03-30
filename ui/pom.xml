@@ -6,7 +6,7 @@
 
     <groupId>quartz-ui</groupId>
     <artifactId>quartz-ui-ui</artifactId>
-    <version>0.8</version>
+    <version>0.81</version>
     <packaging>pom</packaging>
 
     <build>
