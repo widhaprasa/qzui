@@ -232,7 +232,12 @@ public class HttpJobDefinition extends AbstractJobDefinition {
                 Iterator<String> keys = objectNode.fieldNames();
                 while (keys.hasNext()) {
                     String key = keys.next();
-                    request.header(key, objectNode.get(key).toString());
+                    JsonNode value = objectNode.get(key);
+                    if (value.isTextual()) {
+                        request.header(key, value.textValue());
+                    } else if (!value.isMissingNode() && !value.isNull()) {
+                        request.header(key, value.toString());
+                    }
                 }
 
             } catch (IOException e) {
