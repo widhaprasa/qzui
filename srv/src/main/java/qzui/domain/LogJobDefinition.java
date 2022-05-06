@@ -37,7 +37,7 @@ public class LogJobDefinition extends AbstractJobDefinition {
     public static class LogJob implements Job {
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
-            logger.info("{} - {}", context.getJobDetail().getKey(),
+            logger.info("[Log] {} - {}", context.getJobDetail().getKey(),
                     context.getJobDetail().getJobDataMap().getWrappedMap());
         }
     }

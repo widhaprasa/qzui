@@ -65,12 +65,13 @@ public class ShellJobDefinition extends AbstractJobDefinition {
         public void execute(JobExecutionContext context) throws JobExecutionException {
 
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+            JobKey jobKey = context.getJobDetail().getKey();
             String script = jobDataMap.getString("script");
 
             String output = executeCommand(script);
 
 
-            logger.info("{} => {}", script, output);
+            logger.info("[Shell] {} - {} => {}", jobKey, script, output);
         }
 
         private String executeCommand(String command) {

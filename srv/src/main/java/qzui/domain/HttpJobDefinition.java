@@ -171,6 +171,7 @@ public class HttpJobDefinition extends AbstractJobDefinition {
         public void execute(JobExecutionContext context) throws JobExecutionException {
 
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+            JobKey jobKey = context.getJobDetail().getKey();
             String url = jobDataMap.getString("url");
             String method = jobDataMap.getString("method");
             HttpRequest request = new HttpRequest(url, method);
@@ -189,15 +190,15 @@ public class HttpJobDefinition extends AbstractJobDefinition {
             try {
                 request.send(body);
                 int code = request.code();
-                if (code == HttpStatus.OK.getCode()) {
-                    logger.info("[SUCCESS] {} {} {} => {}", method, url, body, code);
+                if (code / 100 == 2) {
+                    logger.info("[HTTP] {} - {} {} {} => {}", jobKey, method, url, body, code);
                 } else {
-                    logger.error("[FAILED] {} {} => {}", method, url, code);
+                    logger.error("[HTTP] {} - {} {} {} => {}", jobKey, method, url, body, code);
                 }
 
             } catch (HttpRequest.HttpRequestException e) {
                 //e.printStackTrace();
-                logger.error("[FAILED] {} {} => E", method, url);
+                logger.error("[HTTP] {} - {} {} {} => E", jobKey, method, url, body);
             }
         }
 
