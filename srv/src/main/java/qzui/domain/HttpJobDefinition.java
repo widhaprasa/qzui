@@ -8,7 +8,6 @@ import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import restx.factory.Component;
-import restx.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -196,9 +195,9 @@ public class HttpJobDefinition extends AbstractJobDefinition {
                     logger.error("[HTTP] {} - {} {} {} => {}", jobKey, method, url, body, code);
                 }
 
-            } catch (HttpRequest.HttpRequestException e) {
+            } catch (Exception e) {
                 //e.printStackTrace();
-                logger.error("[HTTP] {} - {} {} {} => E", jobKey, method, url, body);
+                logger.error("[HTTP] {} - {} {} {} => {}", jobKey, method, url, body, e.getMessage());
             }
         }
 
