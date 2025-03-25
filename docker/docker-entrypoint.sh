@@ -10,27 +10,41 @@ EXCLUDED_VARS=(
   "TOMCAT_ASC_URLS" "TOMCAT_MAJOR" "TOMCAT_NATIVE_LIBDIR" "TOMCAT_SHA512" "TOMCAT_TGZ_URLS" "TOMCAT_VERSION"
 )
 
+camelize() {
+  local output=""; local capitalize=false
+  for (( i=0; i<${#1}; i++ )); do
+    char="${1:$i:1}"
+    [[ "$char" == "." ]] && capitalize=true && continue
+    output+=$([[ $capitalize == true ]] && echo "${char^^}" || echo "$char")
+    capitalize=false
+  done
+  echo "$output"
+}
+
 # Environment variables
 for key in $(compgen -e); do
   if [[ ${EXCLUDED_VARS[@]} =~ (^|[[:space:]])"${key}"($|[[:space:]]) ]]; then
-    continue # Exclude variable
+    continue # Ignore excluded variable
   fi
   val=${!key}
   if [ -z "${val}" ]; then
-    continue # Exclude empty value
+    continue # Ignore empty value
   fi
 
   prop=${key,,} # Convert to lowercase
   prop=${prop//_/.} # Replace underscore with dot
 
-  if [[ $prop == org.quartz.* ]]; then
-    continue # Ignore org.quartz.* properties
-  elif [[ $prop == qzui.jobstore.* ]]; then
-    prop=${prop/qzui.jobstore/qzui.jobStore} # Replace qzui.jobstore
-    args+=("-D${prop}=${val}")
-  else
-    args+=("-D${prop}=${val}")
+  if [[ $prop == org.quartz.scheduler.* || $prop == org.quartz.threadpool.* ]]; then
+    # Handle org.quartz main and thread-pool configuration
+    prefix="${prop#org.quartz.}"
+    prefix="org.quartz.${prefix%%.*}"
+    suffix="${prop#$prefix.}"
+    [[ $prefix == "org.quartz.threadpool" ]] && prefix="org.quartz.threadPool"
+    prop="$prefix.$(camelize "${suffix}")"
+  elif [[ $prop == org.quartz.* ]]; then
+    continue # Ignore other org.quartz configuration
   fi
+  args+=("-D${prop}=${val}")
 done
 
 # Pass properties to CATALINA_OPTS

@@ -240,8 +240,7 @@ public class HttpJobDefinition extends AbstractJobDefinition {
                     }
                 }
 
-            } catch (IOException e) {
-                //e.printStackTrace();
+            } catch (IOException ignored) {
             }
         }
 
@@ -251,8 +250,7 @@ public class HttpJobDefinition extends AbstractJobDefinition {
                 if (readTimeout > 0) {
                     request.readTimeout(readTimeout);
                 }
-            } catch (NumberFormatException e) {
-                //e.printStackTrace();
+            } catch (NumberFormatException ignored) {
             }
         }
 
@@ -262,8 +260,7 @@ public class HttpJobDefinition extends AbstractJobDefinition {
                 if (connectTimeout > 0) {
                     request.connectTimeout(connectTimeout);
                 }
-            } catch (NumberFormatException e) {
-                //e.printStackTrace();
+            } catch (NumberFormatException ignored) {
             }
         }
     }

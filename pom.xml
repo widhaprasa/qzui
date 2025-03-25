@@ -6,7 +6,7 @@
 
     <groupId>quartz-ui</groupId>
     <artifactId>quartz-ui-parent</artifactId>
-    <version>0.9.4</version>
+    <version>0.10.0</version>
     <packaging>pom</packaging>
 
     <modules>
