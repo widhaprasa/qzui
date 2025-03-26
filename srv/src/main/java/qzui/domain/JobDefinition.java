@@ -12,5 +12,6 @@ import java.util.List;
  */
 public interface JobDefinition {
     boolean acceptJobClass(Class<? extends Job> jobClass);
+
     JobDescriptor buildDescriptor(JobDetail jobDetail, List<? extends Trigger> triggersOfJob);
 }

@@ -29,24 +29,24 @@ public class AppServer {
 
         // JobStore properties
         /*
-        boolean jobStore = false;
-        if (jobStore) {
-            String jobStoreMysqlHost ="localhost";
-            int jobStoreMysqlPort = 3306;
-            String jobStoreMysqlDatabase = "quartz";
-            String jobStoreMysqlUsername = "quartz";
-            String jobStoreMysqlPassword = "quartz";
+        boolean enable = false;
+        if (enable) {
+            String mysqlHost = "localhost";
+            int mysqlPort = 3306;
+            String mysqlDatabase = "quartz";
+            String mysqlUsername = "quartz";
+            String mysqlPassword = "quartz";
 
             System.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
             System.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
             System.setProperty("org.quartz.jobStore.dataSource", "qzui");
             System.setProperty("org.quartz.dataSource.qzui.driver", "com.mysql.jdbc.Driver");
-            System.setProperty("org.quartz.dataSource.qzui.URL", "jdbc:mysql://" + jobStoreMysqlHost + ':' +
-                    jobStoreMysqlPort + '/' + jobStoreMysqlDatabase);
-            if (!jobStoreMysqlUsername.isEmpty()) {
-                System.setProperty("org.quartz.dataSource.qzui.user", jobStoreMysqlUsername);
-                if (!jobStoreMysqlPassword.isEmpty()) {
-                    System.setProperty("org.quartz.dataSource.qzui.password", jobStoreMysqlPassword);
+            System.setProperty("org.quartz.dataSource.qzui.URL", "jdbc:mysql://" + mysqlHost + ':' +
+                    mysqlPort + '/' + mysqlDatabase);
+            if (!mysqlUsername.isEmpty()) {
+                System.setProperty("org.quartz.dataSource.qzui.user", mysqlUsername);
+                if (!mysqlPassword.isEmpty()) {
+                    System.setProperty("org.quartz.dataSource.qzui.password", mysqlPassword);
                 }
             }
         }

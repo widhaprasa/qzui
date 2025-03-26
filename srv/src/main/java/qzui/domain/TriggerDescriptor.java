@@ -1,6 +1,7 @@
 package qzui.domain;
 
 import org.joda.time.DateTime;
+import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 
 import java.util.UUID;
@@ -48,15 +49,21 @@ public class TriggerDescriptor {
             if ("now".equalsIgnoreCase(when)) {
                 return newTrigger()
                         .withIdentity(name, group)
+                        .withPriority(100)
                         .usingJobData("when", when)
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                .withMisfireHandlingInstructionFireNow())
                         .build();
             }
 
             DateTime dateTime = DateTime.parse(when);
             return newTrigger()
                     .withIdentity(name, group)
+                    .withPriority(100)
                     .startAt(dateTime.toDate())
                     .usingJobData("when", when)
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withMisfireHandlingInstructionFireNow())
                     .build();
 
         } else if (every > 0) {
