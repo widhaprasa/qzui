@@ -11,6 +11,7 @@ public class QzuiMainRouterServlet extends RestxMainRouterServlet {
     public void init(ServletConfig config) throws ServletException {
 
         String enable = System.getProperty("qzui.jobstore.enabled", "false");
+        System.out.println(enable);
         if (!"true".equals(enable)) {
             super.init(config);
             return;
