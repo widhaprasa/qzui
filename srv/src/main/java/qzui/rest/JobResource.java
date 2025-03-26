@@ -55,7 +55,7 @@ public class JobResource {
     }
 
     @GET("/jobs")
-    public Set<JobKey> getJobKeys()  {
+    public Set<JobKey> getJobKeys() {
         try {
             return scheduler.getJobKeys(GroupMatcher.anyJobGroup());
         } catch (SchedulerException e) {
@@ -64,7 +64,7 @@ public class JobResource {
     }
 
     @GET("/groups/{group}/jobs")
-    public Set<JobKey> getJobKeysByGroup(String group)  {
+    public Set<JobKey> getJobKeysByGroup(String group) {
         try {
             return scheduler.getJobKeys(GroupMatcher.jobGroupEquals(group));
         } catch (SchedulerException e) {
