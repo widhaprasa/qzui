@@ -11,7 +11,6 @@ public class QzuiMainRouterServlet extends RestxMainRouterServlet {
     public void init(ServletConfig config) throws ServletException {
 
         String enable = System.getProperty("qzui.jobstore.enabled", "false");
-        System.out.println(enable);
         if (!"true".equals(enable)) {
             super.init(config);
             return;
@@ -29,7 +28,7 @@ public class QzuiMainRouterServlet extends RestxMainRouterServlet {
         String mysqlPassword = System.getProperty("qzui.jobstore.mysql.password", "quartz");
 
         // JobStore properties
-        // System.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
+        System.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
         System.setProperty("org.quartz.jobStore.driverDelegateClass",
                 "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
         System.setProperty("org.quartz.jobStore.dataSource", "qzui");

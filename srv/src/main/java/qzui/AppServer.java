@@ -28,6 +28,7 @@ public class AppServer {
         System.setProperty("restx.app.package", "qzui");
 
         // JobStore properties
+        /*
         boolean enable = false;
         if (enable) {
             String mysqlHost = "localhost";
@@ -36,7 +37,7 @@ public class AppServer {
             String mysqlUsername = "quartz";
             String mysqlPassword = "quartz";
 
-            // System.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
+            System.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
             System.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
             System.setProperty("org.quartz.jobStore.dataSource", "qzui");
             System.setProperty("org.quartz.dataSource.qzui.driver", "com.mysql.jdbc.Driver");
@@ -49,6 +50,7 @@ public class AppServer {
                 }
             }
         }
+        */
 
         server.startAndAwait();
     }
