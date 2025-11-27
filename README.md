@@ -138,6 +138,20 @@ Note that jobs MUST have unique names.
 }
 ```
 
+#### HTTP Job, scheduled using cron syntax with timezone.
+
+```
+{
+  "type":"http",
+  "name":"google-humans",
+  "method":"GET",
+  "url":"http://www.google.com/humans.txt",
+  "triggers": [
+        {"cron":"0/2 * * * * ?", "cronTz": "Asia/Bangkok"}
+  ]
+}
+```
+
 #### HTTP Job, scheduled using every (in secs).
 
 ```
