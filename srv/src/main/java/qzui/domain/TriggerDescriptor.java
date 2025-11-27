@@ -1,13 +1,14 @@
 package qzui.domain;
 
 import org.joda.time.DateTime;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
+import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.TimeZone;
 import java.util.UUID;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
@@ -15,7 +16,7 @@ public class TriggerDescriptor {
 
     public static TriggerDescriptor buildDescriptor(Trigger trigger) {
 
-        int every = 0;
+        Integer every = null;
         if (trigger.getJobDataMap().containsKey("every")) {
             Object value = trigger.getJobDataMap().get("every");
             if (value instanceof Number) {
@@ -27,6 +28,7 @@ public class TriggerDescriptor {
                 .setGroup(trigger.getKey().getGroup())
                 .setName(trigger.getKey().getName())
                 .setCron(trigger.getJobDataMap().getString("cron"))
+                .setCronTz(trigger.getJobDataMap().getString("cronTz"))
                 .setWhen(trigger.getJobDataMap().getString("when"))
                 .setEvery(every);
     }
@@ -35,15 +37,25 @@ public class TriggerDescriptor {
     private String group;
     private String when;
     private String cron;
-    private int every;
+    private String cronTz;
+    private Integer every;
 
     public Trigger buildTrigger(String name, String group) {
         if (!isNullOrEmpty(cron)) {
-            return newTrigger()
-                    .withIdentity(name, group)
-                    .withSchedule(cronSchedule(cron))
-                    .usingJobData("cron", cron)
-                    .build();
+            TriggerBuilder<Trigger> triggerBuilder = newTrigger()
+                    .withIdentity(name, group);
+            CronScheduleBuilder cronBuilder = CronScheduleBuilder.cronSchedule(cron);
+            triggerBuilder.withSchedule(cronBuilder)
+                    .usingJobData("cron", cron);
+            if (!isNullOrEmpty(cronTz)) {
+                TimeZone tz = TimeZone.getTimeZone(cronTz);
+                if (tz.getID().equals(cronTz) || tz.getID().equals("GMT")
+                        && cronTz.equals("GMT")) {
+                    cronBuilder.inTimeZone(tz);
+                    triggerBuilder.usingJobData("cronTz", cronTz);
+                }
+            }
+            return triggerBuilder.build();
 
         } else if (!isNullOrEmpty(when)) {
             if ("now".equalsIgnoreCase(when)) {
@@ -66,7 +78,7 @@ public class TriggerDescriptor {
                             .withMisfireHandlingInstructionFireNow())
                     .build();
 
-        } else if (every > 0) {
+        } else if (every != null && every > 0) {
             return newTrigger()
                     .withIdentity(name, group)
                     .withSchedule(
@@ -98,7 +110,11 @@ public class TriggerDescriptor {
         return cron;
     }
 
-    public int getEvery() {
+    public String getCronTz() {
+        return cronTz;
+    }
+
+    public Integer getEvery() {
         return every;
     }
 
@@ -122,7 +138,12 @@ public class TriggerDescriptor {
         return this;
     }
 
-    public TriggerDescriptor setEvery(final int every) {
+    public TriggerDescriptor setCronTz(final String cronTz) {
+        this.cronTz = cronTz;
+        return this;
+    }
+
+    public TriggerDescriptor setEvery(final Integer every) {
         this.every = every;
         return this;
     }
@@ -134,6 +155,7 @@ public class TriggerDescriptor {
                 ", group='" + group + '\'' +
                 ", when='" + when + '\'' +
                 ", cron='" + cron + '\'' +
+                ", cronTz='" + cronTz + '\'' +
                 ", every='" + every + '\'' +
                 '}';
     }
